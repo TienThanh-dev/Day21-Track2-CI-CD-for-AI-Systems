@@ -65,15 +65,10 @@ jobs:
           echo "accuracy=$ACC" >> $GITHUB_OUTPUT
 
       - name: Upload model to S3
+        env:
+          S3_BUCKET: ${{ secrets.CLOUD_BUCKET }}
         run: |
-          python - <<'EOF'
-          import os
-          import boto3
-          s3 = boto3.client("s3")
-          bucket = os.environ["CLOUD_BUCKET"]
-          s3.upload_file("models/model.pkl", bucket, "models/latest/model.pkl")
-          print("Model uploaded to S3.")
-          EOF
+          aws s3 cp models/model.pkl s3://$S3_BUCKET/models/latest/model.pkl
 
       - name: Save metrics as artifact
         uses: actions/upload-artifact@v4
